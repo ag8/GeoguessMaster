@@ -287,6 +287,15 @@ const retrieveCurrentRoundStreetView = async (): Promise<void> => {
     );
     const lat = snapshot.child("lat").val();
     const lng = snapshot.child("lng").val();
+    
+    // Wait for Google Maps API to be available
+    if (typeof google === 'undefined' || !google.maps || !google.maps.LatLng) {
+      // Wait a bit and try again
+      await new Promise(resolve => setTimeout(resolve, 100));
+      await retrieveCurrentRoundStreetView();
+      return;
+    }
+    
     const randomLatLng = new google.maps.LatLng(lat, lng);
     inGameState.value.randomLatLng = randomLatLng;
     streetViewRef.value?.loadStreetView(inGameState.value.randomLatLng);
